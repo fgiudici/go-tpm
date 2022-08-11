@@ -53,12 +53,12 @@ func Get(url string, opts ...Option) ([]byte, error) {
 		return nil, err
 	}
 
-	hash, err := GetPubHash(opts...)
+	token, err := getToken(attestationData)
 	if err != nil {
 		return nil, err
 	}
 
-	token, err := getToken(attestationData)
+	hash, err := GetPubHash(opts...)
 	if err != nil {
 		return nil, err
 	}
