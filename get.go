@@ -111,6 +111,34 @@ func Get(url string, opts ...Option) ([]byte, error) {
 		return nil, fmt.Errorf("closing websocket writer: %w", err)
 	}
 
+	// We expect TPM authentication result
+	msgType, data, err := conn.ReadMessage()
+	if err != nil {
+		return nil, fmt.Errorf("reading tpm authentication results got: %w", err)
+	}
+	if msgType != websocket.TextMessage {
+		return nil, fmt.Errorf("unexpected message while retrieving tpm auth result")
+	}
+	if string(data) != "AUTHENTICATED" {
+		return nil, fmt.Errorf("tpm authentication failed with message: %s", string(data))
+	}
+	logrus.Info("tpm authentication successful")
+
+	// We have custom data to send
+	if c.data != nil {
+		for _, data := range c.data {
+			if conn.WriteMessage(websocket.BinaryMessage, data) != nil {
+				return nil, err
+			}
+		}
+	}
+
+	// Communicate finished sending data
+	err = conn.WriteMessage(websocket.TextMessage, []byte("END"))
+	if err != nil {
+		return nil, err
+	}
+
 	_, msg, err = conn.NextReader()
 	if err != nil {
 		return nil, fmt.Errorf("reading payload from tpm get: %w", err)

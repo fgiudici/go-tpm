@@ -14,6 +14,7 @@ type config struct {
 	seed           int64
 
 	cacerts []byte
+	data    [][]byte
 	header  http.Header
 
 	systemfallback bool
@@ -49,6 +50,14 @@ func WithCAs(ca []byte) Option {
 func WithHeader(header http.Header) Option {
 	return func(c *config) error {
 		c.header = header
+		return nil
+	}
+}
+
+// WithData sets data to be sent via a custom message after successful TPM validation
+func WithData(data [][]byte) Option {
+	return func(c *config) error {
+		c.data = data
 		return nil
 	}
 }
