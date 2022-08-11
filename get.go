@@ -66,13 +66,15 @@ func Get(url string, opts ...Option) ([]byte, error) {
 	header.Add("Authorization", token)
 	wsURL := strings.Replace(url, "http", "ws", 1)
 	logrus.Infof("Using TPMHash %s to dial %s", hash, wsURL)
-	logrus.Debug("Connection Headers Size:")
+	logrus.Debug("Connection Headers:")
 	for k, v := range header {
+		logrus.Debug(" - %s:", k)
 		size := 0
 		for _, data := range v {
+			logrus.Debugf("   %s", data)
 			size += len(data)
 		}
-		logrus.Debugf(" %s:\t%d bytes", k, size)
+		logrus.Debugf("   total size: %d bytes", size)
 
 	}
 	conn, resp, err := dialer.Dial(wsURL, header)
