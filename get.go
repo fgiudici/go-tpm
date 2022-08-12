@@ -116,13 +116,15 @@ func Get(url string, opts ...Option) ([]byte, error) {
 
 	// We have custom data to send
 	if c.data != nil {
-		for _, data := range c.data {
+		for i, data := range c.data {
+			time.Sleep(2 * time.Second)
+			logrus.Debugf("send msg %d", i)
 			if conn.WriteMessage(websocket.BinaryMessage, data) != nil {
 				return nil, err
 			}
 		}
 	}
-
+	logrus.Debug("read the payload")
 	_, msg, err = conn.NextReader()
 	if err != nil {
 		return nil, fmt.Errorf("reading payload from tpm get: %w", err)
